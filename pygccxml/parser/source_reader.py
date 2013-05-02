@@ -91,37 +91,36 @@ class source_reader_t:
             self.__decl_factory = decl_factory_t()
 
     def __create_command_line(self, file, xmlfile):
-        assert isinstance( self.__config, config.config_t )
-        #returns
-        cmd = []
-        #first is gccxml executable
-        if 'nt' == os.name:
-            cmd.append( '"%s"' % os.path.normpath( self.__config.gccxml_path ) )
-        else:
-            cmd.append(  '%s' % os.path.normpath( self.__config.gccxml_path ) )
+        assert isinstance(self.__config, config.config_t)
+            #returns
+        cfg = self.__config
+        
+        cmd = [os.path.normpath(cfg.gccxml_path),
+               ]
+        if cfg.cflags:
+            cmd.append(cfg.cflags)
 
-        # Add all cflags passed
-        if self.__config.cflags != "":
-            cmd.append(" %s "%self.__config.cflags)
+        prefix_list = lambda prefix, inlist: [(prefix + item) for item in inlist]
         #second all additional includes directories
-        cmd.append( ''.join( [' -I"%s"' % search_dir for search_dir in self.__search_directories] ) )
+        cmd.extend(prefix_list("-I", self.__search_directories))
         #third all additional defined symbols
-        cmd.append( ''.join( [' -D"%s"' % defined_symbol for defined_symbol in self.__config.define_symbols] ) )
-        cmd.append( ''.join( [' -U"%s"' % undefined_symbol for undefined_symbol in self.__config.undefine_symbols] ) )
+
+        cmd.extend(prefix_list("-D", cfg.define_symbols))
+        cmd.extend(prefix_list("-U", cfg.undefine_symbols))
+        
         #fourth source file
-        cmd.append( '"%s"' % file )
+        cmd.append(file)
         #five destination file
-        cmd.append( '-fxml="%s"' % xmlfile )
-        if self.__config.start_with_declarations:
-            cmd.append( '-fxml-start="%s"' % ','.join( self.__config.start_with_declarations ) )
-        # Specify compiler if asked to
-        if self.__config.compiler:
-            cmd.append( " --gccxml-compiler %s" % self.__config.compiler )
-        cmd_line = ' '.join(cmd)
-        if 'nt' == os.name:
-            cmd_line = '"%s"' % cmd_line
-        self.logger.info( 'gccxml cmd: %s' % cmd_line )
-        return cmd_line
+        cmd.append('-fxml=%s' % xmlfile)
+
+        if cfg.start_with_declarations:
+            cmd.append('-fxml-start="%s"' % ','.join(cfg.start_with_declarations))
+            # Specify compiler if asked to
+        if cfg.compiler:
+            cmd.append("--gccxml-compiler %s" % cfg.compiler)
+
+        self.logger.info('gccxml cmd: %s' % (cmd, ))
+        return cmd
 
     def create_xml_file( self, header, destination=None ):
         """
