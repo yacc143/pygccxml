@@ -204,17 +204,15 @@ class project_reader_t:
         :type compilation_mode: :class:`COMPILATION_MODE`
         :rtype: [:class:`declaration_t`]
         """
-        if compilation_mode == COMPILATION_MODE.ALL_AT_ONCE \
-           and len( files ) == len( self.get_os_file_names(files) ):
-            return self.__parse_all_at_once(files)
-        else:
-            if compilation_mode == COMPILATION_MODE.ALL_AT_ONCE:
-                msg = ''.join([
-                    "Unable to parse files using ALL_AT_ONCE mode. "
-                    , "There is some file configuration that is not file. "
-                    , "pygccxml.parser.project_reader_t switches to FILE_BY_FILE mode." ])
-                self.logger.warning( msg )
-            return self.__parse_file_by_file(files)
+        if compilation_mode == COMPILATION_MODE.ALL_AT_ONCE:
+            if len(files) == len(self.get_os_file_names(files)):
+                return self.__parse_all_at_once(files)
+            else:
+                msg = "Unable to parse files using ALL_AT_ONCE mode. " \
+                    "There is some file configuration that is not file. " \
+                    "pygccxml.parser.project_reader_t switches to FILE_BY_FILE mode."
+                self.logger.warning(msg)
+        return self.__parse_file_by_file(files)
 
     def __parse_file_by_file(self, files):
         namespaces = []
