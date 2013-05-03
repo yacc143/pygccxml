@@ -90,7 +90,7 @@ class source_reader_t:
         if not decl_factory:
             self.__decl_factory = decl_factory_t()
 
-    def __create_command_line(self, file, xmlfile):
+    def _create_command_line(self, file, xmlfile):
         assert isinstance(self.__config, config.config_t)
             #returns
         cfg = self.__config
@@ -147,7 +147,7 @@ class source_reader_t:
             ffname = header
             if not os.path.isabs( ffname ):
                   ffname = self.__file_full_name(header)
-            command_line = self.__create_command_line( ffname, gccxml_file )
+            command_line = self._create_command_line( ffname, gccxml_file )
 
             process = subprocess.Popen( args=command_line
                                         , shell=True
