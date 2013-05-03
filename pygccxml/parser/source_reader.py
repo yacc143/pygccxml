@@ -148,12 +148,10 @@ class source_reader_t:
             if not os.path.isabs( ffname ):
                   ffname = self.__file_full_name(header)
             command_line = self._create_command_line( ffname, gccxml_file )
-
-            process = subprocess.Popen( args=command_line
-                                        , shell=True
-                                        , stdin=subprocess.PIPE
-                                        , stdout=subprocess.PIPE
-                                        , stderr=subprocess.STDOUT )
+            process = subprocess.Popen(args=command_line,
+                                       stdin=subprocess.PIPE,
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.STDOUT)
             process.stdin.close()
 
             gccxml_reports = []
